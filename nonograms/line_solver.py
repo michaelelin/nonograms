@@ -34,7 +34,7 @@ class LineSolver:
         for i in xrange(right_sol[-1] + runs[-1], len(self.cells)):
             self.cells[i].cross(self.direction)
 
-    def solve_left(self, runs, run_index=0, span_start=0, in_span_start=0):
+    def solve_left(self, runs, run_index=0, span_start=0, in_span_start=0, seek_filled=False):
         if span_start >= len(self.spans):
             if run_index >= len(runs):
                 return []
@@ -53,24 +53,33 @@ class LineSolver:
         if in_span_start >= len(span):
             return self.solve_left(runs, run_index, span_start + 1)
 
+        if seek_filled:
+            for i in xrange(in_span_start, min(len(span), in_span_start + run)):
+                if span[i]:
+                    seek_filled = False
+                    break
+
         for i in xrange(in_span_start, len(span) - run + 1):
             if i > 0 and span[i-1]:
                 raise InconsistencyException()
-            if i + run == len(span) or not span[i+run]:
+            if seek_filled and span[i + run - 1]:
+                seek_filled = False
+            if (not seek_filled) and (i + run == len(span) or not span[i+run]):
                 try:
                     solution = self.solve_left(runs, run_index + 1, span_start, i + run + 1)
                     solution.insert(0, span.start_index + i)
                     return solution
                 except InconsistencyException:
-                    continue
+                    # If this fails, this run must include the next filled square!
+                    seek_filled = True
 
         for i in xrange(max(in_span_start, len(span) - run), len(span)):
             if span[i]:
                 raise InconsistencyException()
 
-        return self.solve_left(runs, run_index, span_start + 1, 0)
+        return self.solve_left(runs, run_index, span_start + 1, seek_filled=seek_filled)
 
-    def solve_right(self, runs, run_index=None, span_start=None, in_span_end=None):
+    def solve_right(self, runs, run_index=None, span_start=None, in_span_end=None, seek_filled=False):
         if span_start is None:
             span_start = len(self.spans) - 1
         if span_start < 0:
@@ -97,22 +106,30 @@ class LineSolver:
             return self.solve_right(runs, run_index, span_start - 1)
         in_span_start = in_span_end - run + 1
 
+        if seek_filled:
+            for i in xrange(max(0, in_span_start), in_span_start + run):
+                if span[i]:
+                    seek_filled = False
+                    break
+
         for i in xrange(in_span_start, -1, -1):
             if i + run < len(span) - 1 and span[i+run]:
                 raise InconsistencyException()
-            if i == 0 or not span[i-1]:
+            if seek_filled and span[i]:
+                seek_filled = False
+            if (not seek_filled) and (i == 0 or not span[i-1]):
                 try:
                     solution = self.solve_right(runs, run_index - 1, span_start, i - 2)
                     solution.append(span.start_index + i)
                     return solution
                 except InconsistencyException:
-                    continue
+                    seek_filled = True
 
         for i in xrange(0, min(in_span_end + 1, run)):
             if span[i]:
                 raise InconsistencyException()
 
-        return self.solve_right(runs, run_index, span_start - 1)
+        return self.solve_right(runs, run_index, span_start - 1, seek_filled=seek_filled)
 
 
 class CellSpan:
