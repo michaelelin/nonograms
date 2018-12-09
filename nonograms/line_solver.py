@@ -1,10 +1,12 @@
 from util import InconsistencyException
 
-"""
-5 2 2 5   --#---#--# | - | ---#---#--
-- Mark each run with the spans it may belong to
-- Can we mark each (filled/unfilled) cell with the runs it may belong to?
-"""
+# TODO
+# - Some cells can be filled even if they don't belong to the leftmost and
+#   rightmost placements of a single run
+# 3 3 1   ----- | -##-#----
+# 5 1 1 2 ##### | --#------
+# - Mark each run with the spans it may belong to
+# - Can we mark each (filled/unfilled) cell with the runs it may belong to?
 class LineSolver:
     def __init__(self, cells, direction):
         self.cells = cells
@@ -12,6 +14,11 @@ class LineSolver:
         self.spans = CellSpan.split(cells)
 
     def solve(self, runs):
+        if not runs:
+            for cell in self.cells:
+                cell.cross(self.direction)
+            return
+
         left_sol = self.solve_left(runs)
         right_sol = self.solve_right(runs)
         for run, left, right in zip(runs, left_sol, right_sol):

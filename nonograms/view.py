@@ -7,7 +7,7 @@ CELL_SIZE = 12
 CLUE_SIZE = 10
 COLORS = {
     None: '#ffffff',
-    0: '#ccaaaa',
+    0: '#ffcccc',
     1: '#000000',
 }
 HIGHLIGHT_COLOR = '#ffff99'
@@ -162,7 +162,7 @@ class GuiView:
     def solve(self):
         if self.grid.controller.step():
             self.canvas.redraw()
-            self.root.after(100, self.solve)
+            self.root.after(50, self.solve)
 
     def step(self, debug=False):
         if self.grid.controller.step(debug):

@@ -1,4 +1,7 @@
-class InconsistencyException(Exception):
+class InconsistencyException(RuntimeError):
+    pass
+
+class TimeoutException(RuntimeError):
     pass
 
 class Direction:

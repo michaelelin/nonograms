@@ -45,7 +45,6 @@ class Grid:
             data['width'],
             data['height'],
             data['grid'],
-            data['id'],
             **kwargs
         )
 

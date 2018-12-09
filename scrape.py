@@ -107,7 +107,7 @@ class NonogramSync:
                 self.data.store(nid, grid)
             except Exception as e:
                 print(e)
-        self.data.save()
+        self.data.save(NONOGRAMS_PATH)
         print('Wrote nonograms to %s' % NONOGRAMS_PATH)
 
 if __name__ == '__main__':

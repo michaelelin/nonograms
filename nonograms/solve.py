@@ -1,8 +1,9 @@
+import time
 import traceback
-from nonogram import Grid
-from util import Direction, InconsistencyException
-from line_solver import LineSolver
 
+from nonogram import Grid
+from util import Direction, InconsistencyException, TimeoutException
+from line_solver import LineSolver
 
 class NonogramProblem:
     def __init__(self, grid):
@@ -26,11 +27,16 @@ class NonogramProblem:
     def next_constraint(self):
         return self.dirty_constraints and self.dirty_constraints[-1]
 
+    def solve(self, abort_time=None):
+        while self.step():
+            if abort_time and time.clock() > abort_time:
+                raise TimeoutException()
+
     def step(self, debug=False):
         if not self.dirty_constraints:
             blank_cells = self.blank_cells()
             if blank_cells:
-                raise Exception('branching not implemented')
+                raise NotImplementedError('branching not implemented')
             else:
                 return False
 
