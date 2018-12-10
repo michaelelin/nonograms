@@ -113,7 +113,7 @@ class LineSolver:
                     break
 
         for i in xrange(in_span_start, -1, -1):
-            if i + run < len(span) - 1 and span[i+run]:
+            if i + run < len(span) and span[i+run]:
                 raise InconsistencyException()
             if seek_filled and span[i]:
                 seek_filled = False

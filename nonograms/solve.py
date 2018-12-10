@@ -23,6 +23,7 @@ class NonogramProblem:
         ))
 
         self.dirty_constraints = self.constraints[:]
+        self.state_stack = [] # Used for backtracking
 
     def next_constraint(self):
         return self.dirty_constraints and self.dirty_constraints[-1]
@@ -36,7 +37,8 @@ class NonogramProblem:
         if not self.dirty_constraints:
             blank_cells = self.blank_cells()
             if blank_cells:
-                raise NotImplementedError('branching not implemented')
+                self.branch(blank_cells)
+                return True
             else:
                 return False
 
@@ -44,9 +46,49 @@ class NonogramProblem:
         try:
             constraint.step(debug)
         except InconsistencyException:
-            traceback.print_exc()
-            self.dirty_constraints.append(constraint)
+            self.backtrack()
         return True
+
+    def branch(self, blank_cells):
+        cell, value = self.choose_branch(blank_cells)
+        if value:
+            cell.fill()
+        else:
+            cell.cross()
+        self.state_stack.append(self.freeze_state(cell))
+
+    def choose_branch(self, blank_cells):
+        return blank_cells[0], True
+
+    def freeze_state(self, branch_cell):
+        return {
+            'branch_cell': branch_cell,
+            'state': [[cell.state for cell in row] for row in self.cells],
+        }
+
+    def backtrack(self):
+        if not self.state_stack:
+            raise InconsistencyException()
+        last_state = self.state_stack.pop()
+        self.restore_and_toggle(last_state)
+
+    def restore_and_toggle(self, state):
+        while self.dirty_constraints:
+            self.dirty_constraints.pop().dirty = False
+        for row, frozen_row in zip(self.cells, state['state']):
+            for cell, frozen_state in zip(row, frozen_row):
+                cell.state = frozen_state
+                if frozen_state == True:
+                    self.grid[cell.x,cell.y] = 1
+                elif frozen_state == False:
+                    self.grid[cell.x,cell.y] = 0
+                else:
+                    self.grid[cell.x,cell.y] = None
+        if state['branch_cell'].state:
+            state['branch_cell'].cross()
+        else:
+            state['branch_cell'].fill()
+
 
     def mark_dirty(self, constraint):
         self.dirty_constraints.insert(0, constraint)

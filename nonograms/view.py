@@ -61,11 +61,13 @@ class ClueHighlight:
         if not constraint:
             if self.id:
                 self.parent.delete(self.id)
+                self.id = None
         elif self.id is None:
             self.id = self.parent.create_rectangle(
                 *self.coords(constraint),
                 fill=HIGHLIGHT_COLOR, outline=''
             )
+            self.parent.tag_lower(self.id)
         else:
             self.parent.coords(self.id, *self.coords(constraint))
 
@@ -151,6 +153,8 @@ class GuiView:
             self.controls.pack(side='right')
             self.btn_solve = tk.Button(self.controls, text='Solve', command=self.solve)
             self.btn_solve.pack()
+            self.btn_pause = tk.Button(self.controls, text='Pause', command=self.pause)
+            self.btn_pause.pack()
             self.btn_step = tk.Button(self.controls, text='Step', command=self.step)
             self.btn_step.pack()
             self.btn_debug_step = tk.Button(self.controls, text='Debug', command=lambda: self.step(True))
@@ -160,9 +164,16 @@ class GuiView:
         self.root.mainloop()
 
     def solve(self):
-        if self.grid.controller.step():
+        self._paused = False
+        self._solve()
+
+    def _solve(self):
+        if (not self._paused) and self.grid.controller.step():
             self.canvas.redraw()
-            self.root.after(50, self.solve)
+            self.root.after(10, self._solve)
+
+    def pause(self):
+        self._paused = True
 
     def step(self, debug=False):
         if self.grid.controller.step(debug):
