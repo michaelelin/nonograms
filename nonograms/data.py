@@ -1,5 +1,6 @@
 import json
 import os
+import random
 
 from nonogram import Grid
 
@@ -36,3 +37,13 @@ class GridData:
 
     def __len__(self):
         return len(self._nonograms)
+
+class RandomGridData:
+    def __init__(self, size):
+        self.size = size
+
+    def get(self, nid, **kwargs):
+        random.seed(nid)
+        return Grid(self.size, self.size,
+                    [[random.randint(0, 1) for _ in xrange(self.size)] for _ in xrange(self.size)],
+                    nid)

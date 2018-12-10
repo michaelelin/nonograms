@@ -2,7 +2,7 @@ import argparse
 import sys
 import time
 
-from nonograms.data import GridData, NONOGRAMS_PATH
+from nonograms.data import GridData, RandomGridData, NONOGRAMS_PATH
 from nonograms.view import GuiView
 from nonograms.solve import NonogramProblem
 from benchmark import NonogramsBenchmark
@@ -13,7 +13,10 @@ def view(args):
     GuiView(grid)
 
 def solve(args):
-    data = GridData(args.file)
+    if args.random:
+        data = RandomGridData(args.random)
+    else:
+        data = GridData(args.file)
     grid = data.get(args.id)
     grid.clear()
     problem = NonogramProblem(grid)
@@ -58,6 +61,10 @@ if __name__ == '__main__':
     parse_solve.add_argument('-f', '--file',
                              default='data/nonograms.json',
                              help='the puzzle data file to use (default: %s)' % NONOGRAMS_PATH)
+    parse_solve.add_argument('-r', '--random',
+                             type=int,
+                             default=None,
+                             help='If used, generates a random puzzle instead of the given size')
     parse_solve.add_argument('-g', '--graphics',
                              action='store_true',
                              help='show a GUI while solving')
