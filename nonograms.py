@@ -1,5 +1,4 @@
 import argparse
-import sys
 import time
 
 from nonograms.data import GridData, RandomGridData, NONOGRAMS_PATH
@@ -8,7 +7,7 @@ from nonograms.solve import NonogramProblem
 from benchmark import NonogramsBenchmark
 
 def view(args):
-    data = GridData(args.file)
+    data = GridData.load(args.file)
     grid = data.get(args.id)
     GuiView(grid)
 
@@ -16,7 +15,7 @@ def solve(args):
     if args.random:
         data = RandomGridData(args.random)
     else:
-        data = GridData(args.file)
+        data = GridData.load(args.file)
     grid = data.get(args.id)
     grid.clear()
     problem = NonogramProblem(grid)
@@ -28,7 +27,7 @@ def solve(args):
         print('Solved in %s seconds' % (time.clock() - start_time))
 
 def benchmark(args):
-    benchmark = NonogramsBenchmark(GridData(args.file))
+    benchmark = NonogramsBenchmark(GridData.load(args.file))
     benchmark.test(timeout=args.timeout)
     benchmark.report()
     if args.out:

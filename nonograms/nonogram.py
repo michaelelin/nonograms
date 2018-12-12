@@ -1,13 +1,13 @@
 class Grid:
-    def __init__(self, width, height, grid=None, nid=None):
+    def __init__(self, width, height, grid=None, rows=None, columns=None, nid=None):
         self.nid = nid
         self.width = width
         self.height = height
         self.grid = grid or [[0] * width for _ in xrange(height)]
-        self.rows = [self._project_line(self.grid[y])
-                     for y in xrange(height)]
-        self.columns = [self._project_line([row[x] for row in self.grid])
-                        for x in xrange(width)]
+        self.rows = rows or [self._project_line(self.grid[y])
+                             for y in xrange(height)]
+        self.columns = columns or [self._project_line([row[x] for row in self.grid])
+                                   for x in xrange(width)]
         self.controller = None
 
     def set_controller(self, controller):

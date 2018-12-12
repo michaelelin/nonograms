@@ -58,7 +58,13 @@ class NonogramProblem:
         self.state_stack.append(self.freeze_state(cell))
 
     def choose_branch(self, blank_cells):
-        return blank_cells[0], True
+        free_per_row = [0 for _ in xrange(self.grid.height)]
+        free_per_col = [0 for _ in xrange(self.grid.width)]
+        for cell in blank_cells:
+            free_per_row[cell.y] += 1
+            free_per_col[cell.x] += 1
+        cell = min(blank_cells, key=lambda c: free_per_col[c.x] + free_per_row[c.y])
+        return cell, True
 
     def freeze_state(self, branch_cell):
         return {
