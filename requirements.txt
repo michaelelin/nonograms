@@ -1,2 +1,5 @@
-ipdb==0.11
-tqdm==4.28.1
+cssselect
+ipdb
+lxml
+requests
+tqdm

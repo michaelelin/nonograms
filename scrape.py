@@ -6,7 +6,7 @@ import re
 import requests
 import sys
 
-from nonograms.data import GridData
+from nonograms.data import JsonGridData
 from nonograms.nonogram import Grid
 
 DATA_DIR = 'data'
@@ -98,7 +98,7 @@ class NonogramSync:
     def __init__(self):
         with open(INDEX_PATH, 'r') as f:
             self.index = json.load(f)
-        self.data = GridData()
+        self.data = JsonGridData()
 
     def sync(self):
         for nid, props in tqdm(self.index.iteritems(), total=len(self.index)):

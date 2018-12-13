@@ -35,9 +35,12 @@ class GridData:
 
 
 class JsonGridData(GridData):
-    def __init__(self, filename):
-        with open(filename, 'r') as f:
-            self._nonograms = json.load(f)
+    def __init__(self, filename=None):
+        if filename:
+            with open(filename, 'r') as f:
+                self._nonograms = json.load(f)
+        else:
+            self._nonograms = {}
 
     def save(self, data_path):
         with open(data_path, 'w') as f:

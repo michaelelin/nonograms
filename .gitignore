@@ -1,5 +1,5 @@
 .*.swp
 *.pyc
 
-data/
+data/*
 !data/nonograms_19719.json
