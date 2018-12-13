@@ -24,6 +24,7 @@ class NonogramProblem:
 
         self.dirty_constraints = self.constraints[:]
         self.state_stack = [] # Used for backtracking
+        self.branching_attempts = 0
 
     def next_constraint(self):
         return self.dirty_constraints and self.dirty_constraints[-1]
@@ -50,6 +51,7 @@ class NonogramProblem:
         return True
 
     def branch(self, blank_cells):
+        self.branching_attempts += 1
         cell, value = self.choose_branch(blank_cells)
         if value:
             cell.fill()
@@ -58,6 +60,70 @@ class NonogramProblem:
         self.state_stack.append(self.freeze_state(cell))
 
     def choose_branch(self, blank_cells):
+        # polarity_radius = 1
+        # best_cell = blank_cells[0]
+        # best_value = True
+        # best_polarity = 10000
+        # for cell in blank_cells:
+        #     polarity = 0
+        #     for x in xrange(cell.x - polarity_radius, cell.x + polarity_radius + 1):
+        #         if x >= 0 and x < self.grid.width:
+        #             for y in xrange(cell.y - polarity_radius, cell.y + polarity_radius + 1):
+        #                 if y >= 0 and y < self.grid.height:
+        #                     state = self.cells[y][x].state
+        #                     if state == True:
+        #                         polarity += 1
+        #                     elif state == False:
+        #                         polarity -= 1
+        #     if abs(polarity) < abs(best_polarity):
+        #         best_cell = cell
+        #         best_polarity = polarity
+        # return best_cell, best_polarity >= 0
+
+        return blank_cells[0], False
+
+        # h = []
+        # free_per_row = [0 for _ in xrange(self.grid.height)]
+        # free_per_col = [0 for _ in xrange(self.grid.width)]
+        # for cell in blank_cells:
+        #     free_per_row[cell.y] += 1
+        #     free_per_col[cell.x] += 1
+        # for cell in blank_cells:
+        #     heapq.heappush(h, (free_per_col[cell.x] + free_per_row[cell.y], cell))
+
+        # best_cell = None
+        # best_value = None
+        # best_probe = 0
+        # for _, cell in heapq.nsmallest(1, h):
+        #     for value in [True, False]:
+        #         cell.state = value
+        #         probe = (cell.constraints[Direction.ROW].probe() +
+        #                  cell.constraints[Direction.COLUMN].probe())
+        #         if probe > best_probe:
+        #             best_cell = cell
+        #             best_value = value
+        #             best_probe = probe
+        #     cell.state = None
+
+        # return best_cell, best_value
+
+
+
+        # best_cell = None
+        # best_value = None
+        # best_probe = 0
+        # for cell in blank_cells:
+        #     for value in [True, False]:
+        #         cell.state = value
+        #         probe = (cell.constraints[Direction.ROW].probe() +
+        #                  cell.constraints[Direction.COLUMN].probe())
+        #         if probe > best_probe:
+        #             best_cell = cell
+        #             best_value = value
+        #             best_probe = probe
+        #     cell.state = None
+        # return best_cell, best_value
+
         free_per_row = [0 for _ in xrange(self.grid.height)]
         free_per_col = [0 for _ in xrange(self.grid.width)]
         for cell in blank_cells:
