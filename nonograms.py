@@ -24,7 +24,8 @@ def solve(args):
     else:
         start_time = time.clock()
         problem.solve()
-        print('Solved in %s seconds' % (time.clock() - start_time))
+        print('Solved in %s seconds with %s branching attempts' % (time.clock() - start_time,
+                                                                   problem.branching_attempts))
 
 def benchmark(args):
     benchmark = NonogramsBenchmark(GridData.load(args.file))

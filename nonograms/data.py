@@ -77,4 +77,4 @@ class RandomGridData(GridData):
         random.seed(nid)
         return Grid(self.size, self.size,
                     [[random.randint(0, 1) for _ in xrange(self.size)] for _ in xrange(self.size)],
-                    nid)
+                    nid=nid)
