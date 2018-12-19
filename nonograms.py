@@ -20,7 +20,7 @@ def solve(args):
     grid.clear()
     problem = NonogramProblem(grid)
     if args.graphics:
-        GuiView(grid)
+        GuiView(grid, scale=args.size)
     else:
         start_time = time.clock()
         problem.solve()
@@ -69,6 +69,10 @@ if __name__ == '__main__':
                              action='store_true',
                              help='show a GUI while solving')
     parse_solve.set_defaults(func=solve)
+
+    parse_solve.add_argument('-s', '--size',
+                             type=int,
+                             default=12)
 
     # nonograms.py benchmark ...
     parse_benchmark = subparsers.add_parser('benchmark',

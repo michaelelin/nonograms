@@ -13,16 +13,17 @@ COLORS = {
 HIGHLIGHT_COLOR = '#ffff99'
 
 class NonogramCell:
-    def __init__(self, parent, x, y, color=None):
+    def __init__(self, parent, x, y, color=None, size=CELL_SIZE):
         self.parent = parent
         self.x = x
         self.y = y
         self.color = color
+        self._size = size
         self.id = parent.create_rectangle(
-                x*CELL_SIZE,
-                y*CELL_SIZE,
-                x*CELL_SIZE+CELL_SIZE,
-                y*CELL_SIZE+CELL_SIZE,
+                x*self._size,
+                y*self._size,
+                x*self._size+self._size,
+                y*self._size+self._size,
                 fill=color, outline='')
 
     def set_color(self, color):
@@ -31,11 +32,12 @@ class NonogramCell:
             self.parent.itemconfig(self.id, fill=color)
 
 class NonogramClue:
-    def __init__(self, parent, proj, direction, coord):
+    def __init__(self, parent, proj, direction, coord, size=CELL_SIZE):
         self.parent = parent
         self.proj = proj
         self.direction = direction
         self.coord = coord
+        self._size = size
         self.span_ids = [self._draw_span(i, span) for i, span in enumerate(reversed(proj))]
 
     def _draw_span(self, index, span):
@@ -46,16 +48,17 @@ class NonogramClue:
             x = self.parent.proj_width + self.coord + 0.5
             y = self.parent.proj_height - index - 0.5
         self.parent.create_text(
-            CELL_SIZE * x,
-            CELL_SIZE * y,
+            self._size * x,
+            self._size * y,
             text=span,
-            font=('Courier Bold', CLUE_SIZE),
+            font=('Courier Bold', self._size * 5 / 6),
         )
 
 class ClueHighlight:
-    def __init__(self, parent):
+    def __init__(self, parent, size=CELL_SIZE):
         self.parent = parent
         self.id = None
+        self._size = size
 
     def move(self, constraint):
         if not constraint:
@@ -75,38 +78,40 @@ class ClueHighlight:
         if constraint.direction == Direction.ROW:
             return (
                 0,
-                (self.parent.proj_height + constraint.coord) * CELL_SIZE,
-                (self.parent.proj_width + self.parent.grid.width) * CELL_SIZE,
-                (self.parent.proj_height + constraint.coord + 1) * CELL_SIZE,
+                (self.parent.proj_height + constraint.coord) * self._size,
+                (self.parent.proj_width + self.parent.grid.width) * self._size,
+                (self.parent.proj_height + constraint.coord + 1) * self._size,
             )
         elif constraint.direction == Direction.COLUMN:
             return (
-                (self.parent.proj_width + constraint.coord) * CELL_SIZE,
+                (self.parent.proj_width + constraint.coord) * self._size,
                 0,
-                (self.parent.proj_width + constraint.coord + 1) * CELL_SIZE,
-                (self.parent.proj_height + self.parent.grid.height) * CELL_SIZE,
+                (self.parent.proj_width + constraint.coord + 1) * self._size,
+                (self.parent.proj_height + self.parent.grid.height) * self._size,
             )
 
 
 class NonogramCanvas(tk.Canvas):
-    def __init__(self, parent, grid):
+    def __init__(self, parent, grid, size=CELL_SIZE):
         self.grid = grid
+        self._size = size
         self.proj_width = max(len(proj) for proj in grid.rows)
         self.proj_height = max(len(proj) for proj in grid.columns)
         tk.Canvas.__init__(self,
                 parent,
-                width=(grid.width + self.proj_width) * CELL_SIZE,
-                height=(grid.height + self.proj_height) * CELL_SIZE,
+                width=(grid.width + self.proj_width) * self._size,
+                height=(grid.height + self.proj_height) * self._size,
                 )
 
-        self.clue_highlight = ClueHighlight(self)
+        self.clue_highlight = ClueHighlight(self, self._size)
         self.highlight_next_line()
 
-        self.proj_rows = [NonogramClue(self, proj, Direction.ROW, y)
+        self.proj_rows = [NonogramClue(self, proj, Direction.ROW, y, self._size)
                           for y, proj in enumerate(grid.rows)]
-        self.proj_cols = [NonogramClue(self, proj, Direction.COLUMN, x)
+        self.proj_cols = [NonogramClue(self, proj, Direction.COLUMN, x, self._size)
                           for x, proj in enumerate(grid.columns)]
-        self.cells = [[NonogramCell(self, x+self.proj_width, y+self.proj_height, COLORS[grid[x,y]])
+        self.cells = [[NonogramCell(self, x+self.proj_width, y+self.proj_height, COLORS[grid[x,y]],
+                                    self._size)
                        for x in range(grid.width)]
                       for y in range(grid.height)]
         self._draw_grid()
@@ -124,28 +129,29 @@ class NonogramCanvas(tk.Canvas):
     def _draw_grid(self):
         for x in xrange(self.grid.width + 1):
             self.create_line(
-                CELL_SIZE * (self.proj_width + x),
+                self._size * (self.proj_width + x),
                 0,
-                CELL_SIZE * (self.proj_width + x),
-                CELL_SIZE * (self.proj_height + self.grid.height),
+                self._size * (self.proj_width + x),
+                self._size * (self.proj_height + self.grid.height),
                 width=(2 if x % 5 == 0 else 1),
             )
         for y in xrange(self.grid.height + 1):
             self.create_line(
                 0,
-                CELL_SIZE * (self.proj_height + y),
-                CELL_SIZE * (self.proj_width + self.grid.width),
-                CELL_SIZE * (self.proj_height + y),
+                self._size * (self.proj_height + y),
+                self._size * (self.proj_width + self.grid.width),
+                self._size * (self.proj_height + y),
                 width=(2 if y % 5 == 0 else 1),
             )
 
 class GuiView:
-    def __init__(self, grid):
+    def __init__(self, grid, size=CELL_SIZE):
         self.root = tk.Tk()
         self.app = tk.Frame(self.root)
         self.grid = grid
+        self._size = size
 
-        self.canvas = NonogramCanvas(self.app, grid)
+        self.canvas = NonogramCanvas(self.app, self.grid, self._size)
         self.canvas.pack(side='left', fill=tk.BOTH, expand=1)
 
         if grid.controller:
